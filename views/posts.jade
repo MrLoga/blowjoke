@@ -1,0 +1,12 @@
+extends layout
+
+block content
+	h1 Post List
+	ul
+		each post, i in posts
+			li
+				span= post.title
+				br
+				span= post.text
+				br
+				hr

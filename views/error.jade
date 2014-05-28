@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1 Ошибонька #{message}
+  img(src="http://abload.de/img/1399349252432tvxcp.png", width="200")
+  //- h2= error.status
+  pre #{error.stack}

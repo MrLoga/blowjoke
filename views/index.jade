@@ -1,0 +1,13 @@
+extends layout
+
+block content
+	.wraper__content
+		include post_create
+		br
+		.post__list
+			each post, i in posts
+				.post__list-item
+					i=post.date
+					h3=post.post
+		br
+		input.post__more(type="button", value="Еще постов", data-page="1")
