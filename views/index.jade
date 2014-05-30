@@ -7,7 +7,6 @@ block content
 		.post__list
 			each post, i in posts
 				.post__list-item
-					i=post.date
-					h3 !{post.post}
+					p !{post.post}
 		br
 		input.post__more(type="button", value="Еще постов", data-page="1")

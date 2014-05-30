@@ -8,7 +8,7 @@ $(function(){
 	Post.parseBlockImg = $("#post__create-parse_img");
 	Post.prewTimeOut = setTimeout(Post.prewCreatePost,2000);
 
-	Post.checkLink = function(linkArr){
+	Post.checkLinkImg = function(linkArr){
 		var loadedimages = 0, newimages=[];
 		var postaction=function(){}
 		function imageloadpost(){
@@ -17,7 +17,6 @@ $(function(){
 	        	postaction(newimages);
 	        }
 	    }
-
 		for (var i=0; i<linkArr.length; i++){
 	        newimages[i]=new Image();
 	        newimages[i].src=linkArr[i];
@@ -38,10 +37,27 @@ $(function(){
 	            postaction=f || postaction
 	        }
 	    }
-
 	};
 
-	Post.parseText = function(text){
+	Post.checkLinkYoutube = function(linkArr){
+		for (var i=0; i<linkArr.length; i++){
+			var url = linkArr[i];
+			var videoid = url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
+			if(videoid!=null) {
+				$(".post_link_parse_"+i).remove();
+				$.getJSON('http://gdata.youtube.com/feeds/api/videos/'+videoid[1]+'?v=2&alt=jsonc',function(data,status,xhr){
+				    console.log(data.data);
+				    Post.parseBlockImg.html(data.data.title+'<br><br><iframe width="680" height="370" src="//www.youtube.com/embed/'+data.data.id+'" frameborder="0" allowfullscreen></iframe>');
+				    $(".post__create-submit-img").append($("<span style='width: 300px;display: inline-block;margin: 5px;'>"+data.data.title+"</span>"));
+				    $(".post__create-submit-img").append($("<img src='" + data.data.thumbnail.hqDefault + "' alt='"+data.data.title+"' />").height(45));
+				});
+			}else{
+			   console.log("The youtube url is not valid.");
+			}
+		}
+	};
+
+	Post.parseTextToLink = function(text){
 	    var urlRegex = /(https?:\/\/[^\s]+)/g;
 		return text.replace(urlRegex, function(url) {
 	        return '<a href="' + url + '">' + url + '</a>';
@@ -54,14 +70,28 @@ $(function(){
 			var link = $(this).prop("href");
 			linkArr.push(link);
 		});
-		Post.checkLink(linkArr).done(function(x){
-			if(submit){
-				Post.send(Post.parseBlock.html() +"<br/><br/>"+ Post.parseBlockImg.html());
-				Post.parseBlock.html("");
-				Post.parseBlockImg.html("");
-				$(".post__create-submit-img").html("");
-			}
-		});
+		if(linkArr.length < 1 && submit){
+			var str = Post.parseBlock.html();
+			str = str.replace(/\r\n|\r|\n/g,"<br />");
+			Post.parseBlock.html(str);
+			Post.send(Post.parseBlock.html() +"<br/>"+ Post.parseBlockImg.html());
+			Post.parseBlock.html("");
+			Post.parseBlockImg.html("");
+			$(".post__create-submit-img").html("");
+		}else{
+			Post.checkLinkYoutube(linkArr);
+			Post.checkLinkImg(linkArr).done(function(x){
+				if(submit){
+					var str = Post.parseBlock.html();
+					str = str.replace(/\r\n|\r|\n/g,"<br />");
+					Post.parseBlock.html(str);
+					Post.send(Post.parseBlock.html() +"<br/>"+ Post.parseBlockImg.html());
+					Post.parseBlock.html("");
+					Post.parseBlockImg.html("");
+					$(".post__create-submit-img").html("");
+				}
+			});
+		}
 	};
 
 	Post.input.blur(function(){
@@ -75,13 +105,12 @@ $(function(){
 		Post.parseBlockImg.html("");
 		$(".post__create-submit-img").html("");
 		var postVal = Post.input.val();
-		postVal = Post.parseText(postVal);
+		postVal = Post.parseTextToLink(postVal);
 		Post.parseBlock.html(postVal);
 		Post.parseLinkToImg(true);		
 	});
 
 	Post.input.focus(function(){
-		console.log("focus");
 		clearTimeout(Post.prewTimeOut);
 		Post.prewTimeOut = setTimeout(Post.prewCreatePost, 1000);
 	});
@@ -94,7 +123,7 @@ $(function(){
 		Post.parseBlockImg.html("");
 		$(".post__create-submit-img").html("");
 		var postVal = Post.input.val();
-		postVal = Post.parseText(postVal);
+		postVal = Post.parseTextToLink(postVal);
 		Post.parseBlock.html(postVal);
 		Post.parseLinkToImg(false);
 	};
@@ -130,8 +159,7 @@ $(function(){
 		  },
 		  success: function(data){
 		    var newPost = $("<div/>").addClass("post__list-item post__list-item_new");
-		    newPost.append("<i>"+data.date+"</i>");
-		    newPost.append("<h3>"+data.post+"</h3>");
+		    newPost.append("<p>"+data.post+"</p>");
 		    $(".post__list").prepend(newPost);
 		    Post.removeNewClass();
 			Post.input.val("");
