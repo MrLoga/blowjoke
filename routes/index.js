@@ -4,29 +4,6 @@ var http = require('http');
 var https = require('https');
  
 
-router.get('/checkmime', function(req, res) {
-    var url = url.substr(url.indexOf('//')+2);
-    var i = url.indexOf('/');
-    if (i < 0) i = url.length;
-
-    var isHttps = url.indexOf("https") == 0;
-    var req = {
-        method:"HEAD",
-        port:(isHttps ? 443 : 80),
-        host:url.substr(0,i),
-        path:url.substr(i)
-    };
-
-    req = (isHttps ? https : http).request(req, function (res) {
-        handler(res.statusCode == 200 ? res.headers["content-type"] : null);
-        console.log(res.headers["content-type"]);
-    });
-    req.addListener('error', function(err) {
-        handler(null);
-    });
-    req.end();
-});
-
 router.get('/sendpost', function(req, res) {
     var db = req.db;
     var collection = db.get('posts');

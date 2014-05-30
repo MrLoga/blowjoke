@@ -8,20 +8,37 @@ $(function(){
 	Post.parseBlockImg = $("#post__create-parse_img");
 	Post.prewTimeOut = setTimeout(Post.prewCreatePost,2000);
 
-	Post.checkLink = function(link, num){
-		var image = new Image();
-		image.src = link;
-		$(image).prop("id","#post_img_parse_"+num);
+	Post.checkLink = function(linkArr){
+		var loadedimages = 0, newimages=[];
+		var postaction=function(){}
+		function imageloadpost(){
+	        loadedimages++;
+	        if (loadedimages==linkArr.length){
+	        	postaction(newimages);
+	        }
+	    }
 
-		image.onload = function( _, isAbort ) {
-			$("#post_link_parse_"+num).remove();
-			Post.parseBlockImg.append($("<img src='" +link+ "'/>"));
-			$(".post__create-submit-img").append($(image).height(45));
-			return true;
-		};
-		image.onerror = function( _, isAbort ) {
-			return true;
-		};
+		for (var i=0; i<linkArr.length; i++){
+	        newimages[i]=new Image();
+	        newimages[i].src=linkArr[i];
+	        newimages[i].linkid=i;
+	        newimages[i].onload=function(_){
+	        	$(".post__create-submit-img").append($("<img src='" + $(_.srcElement).prop("src") + "'/>").height(45));
+	        	Post.parseBlockImg.append($("<img src='" +$(_.srcElement).prop("src")+ "'/>"));
+	        	$(".post_link_parse_"+$(_.srcElement).prop("linkid")).remove();
+	            imageloadpost();
+	        }
+	        newimages[i].onerror=function(_){
+	        	$(".post_link_parse_"+$(_.srcElement).prop("linkid")).removeClass("post_link_parse_"+$(_.srcElement).prop("linkid"));
+	        	imageloadpost();
+	        }
+	    }
+	    return {
+	        done:function(f){
+	            postaction=f || postaction
+	        }
+	    }
+
 	};
 
 	Post.parseText = function(text){
@@ -30,13 +47,21 @@ $(function(){
 	        return '<a href="' + url + '">' + url + '</a>';
 	    });
 	};
-	Post.parseLinkToImg = function(){
+	Post.parseLinkToImg = function(submit){
+		var linkArr = [];
 		Post.parseBlock.find("a").each(function(i){
-			$(this).prop("id", "post_link_parse_"+i);
+			$(this).addClass("post_link_parse_"+i);
 			var link = $(this).prop("href");
-			Post.checkLink(link, i);
+			linkArr.push(link);
 		});
-		return true;
+		Post.checkLink(linkArr).done(function(x){
+			if(submit){
+				Post.send(Post.parseBlock.html() +"<br/><br/>"+ Post.parseBlockImg.html());
+				Post.parseBlock.html("");
+				Post.parseBlockImg.html("");
+				$(".post__create-submit-img").html("");
+			}
+		});
 	};
 
 	Post.input.blur(function(){
@@ -52,14 +77,11 @@ $(function(){
 		var postVal = Post.input.val();
 		postVal = Post.parseText(postVal);
 		Post.parseBlock.html(postVal);
-		Post.parseLinkToImg();
-		Post.send(Post.parseBlock.html() +"<br/><br/>"+ Post.parseBlockImg.html());
-		Post.parseBlock.html("");
-		Post.parseBlockImg.html("");
-		$(".post__create-submit-img").html("");
+		Post.parseLinkToImg(true);		
 	});
 
 	Post.input.focus(function(){
+		console.log("focus");
 		clearTimeout(Post.prewTimeOut);
 		Post.prewTimeOut = setTimeout(Post.prewCreatePost, 1000);
 	});
@@ -68,14 +90,13 @@ $(function(){
 		Post.prewTimeOut = setTimeout(Post.prewCreatePost, 1000);
 	});
 	Post.prewCreatePost = function(){
-		console.log("prew");
 		Post.parseBlock.html("");
 		Post.parseBlockImg.html("");
 		$(".post__create-submit-img").html("");
 		var postVal = Post.input.val();
 		postVal = Post.parseText(postVal);
 		Post.parseBlock.html(postVal);
-		Post.parseLinkToImg();
+		Post.parseLinkToImg(false);
 	};
 
 	Post.input.focus(function(){
