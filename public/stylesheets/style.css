@@ -46,17 +46,27 @@ a {
   font: bold 22px "PT Sans";
   color: #363636;
 }
+.post__create {
+  height: 70px;
+}
+.post__create_hidden {
+  display: none;
+}
 .post__create-input {
+  position: relative;
   border: 1px solid #d5d5d5;
   border-radius: 5px;
   height: 48px;
   width: 100%;
-  padding: 0 20px;
+  padding: 12px 40px 12px 20px;
+  resize: none;
   font: 16px "PT Sans";
   color: #363636;
+  z-index: 2;
 }
 .post__create-input-wrap {
   margin: 30px 0;
+  padding: 0 0 60px;
   position: relative;
 }
 .post__create-input-photo {
@@ -67,9 +77,42 @@ a {
   right: 11px;
   top: 14px;
   cursor: pointer;
+  z-index: 5;
 }
 .post__create-input-photo:hover {
   background-position: 0 0;
+}
+.post__create-submit {
+  padding: 9px 17px;
+  background-color: #ff4242;
+  border-radius: 5px;
+  color: #fff;
+  border: none;
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  font: bold 16px "PT Sans";
+  cursor: pointer;
+}
+.post__create-submit:hover {
+  background-color: #f55;
+}
+.post__create-submit-wrap {
+  position: absolute;
+  top: 0;
+  height: 110px;
+  z-index: 1;
+  width: 100%;
+  background-color: #ededed;
+  visibility: hidden;
+  box-shadow: 0 0 5px #aaa;
+  border-radius: 5px;
+}
+.post__create-submit-img {
+  position: absolute;
+  bottom: 3px;
+  right: 20px;
+  height: 50px;
 }
 .post__list-item {
   margin: 10px 0 0px;
