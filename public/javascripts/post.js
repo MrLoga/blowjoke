@@ -60,9 +60,14 @@ $(function(){
 		for (var i=0; i<linkArr.length; i++){
 			var url = linkArr[i];
 			// http://coub.com/view/1ibde
-			var coubid = url.match(/(?:http?:\/{2})?(?:w{3}\.)?coub.com\/view\/([^\s&]+)/);
+			var coubid = url.match(/coub.com\/view\/([^\s&]+)/);
 			if(coubid!=null) {
-				Post.parseBlockImg.html('<iframe src="http://coub.com/embed/'+coubid[1]+'?muted=false&amp;autostart=false&originalSize=false&hideTopBar=false&noSiteButtons=false&startWithHD=false" allowfullscreen="true" frameborder="0" width="640" height="480"></iframe>');
+				$.getJSON('http://api.embed.ly/1/oembed?url=http://coub.com/view/'+coubid[1],function(data,status,xhr){
+				    Post.parseBlockImg.html(data['html']);
+				    $(".post__create-submit-img").append($("<span style='width: 300px;display: inline-block;margin: 5px;'>"+data['title']+"</span>"));
+				    $(".post__create-submit-img").append($("<img src='" + data['thumbnail_url'] + "' height='45' />"));
+				});
+				//Post.parseBlockImg.html('<iframe src="http://coub.com/embed/'+coubid[1]+'?muted=false&amp;autostart=false&originalSize=false&hideTopBar=false&noSiteButtons=false&startWithHD=false" allowfullscreen="true" frameborder="0" width="640" height="480"></iframe>');
 			}else{
 				console.log("coub fasle");
 			}
@@ -70,9 +75,10 @@ $(function(){
 	};
 
 	Post.parseTextToLink = function(text){
-	    var urlRegex = /(https?:\/\/[^\s]+)/g;
+	    var urlRegex = /(([a-z]+:\/\/)?(([a-z0-9\-]+\.)+([a-z]{2}|aero|arpa|biz|com|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel|local|internal))(:[0-9]{1,5})?(\/[a-z0-9_\-\.~]+)*(\/([a-z0-9_\-\.]*)(\?[a-z0-9+_\-\.%=&amp;]*)?)?(#[a-zA-Z0-9!$&'()*+.=-_~:@/?]*)?)(\s+|$)/gi;
 		return text.replace(urlRegex, function(url) {
-	        return '<a href="' + url + '">' + url + '</a>';
+			console.log(url);
+	        return '<a href="' + url + '">' + url + '	</a>';
 	    });
 	};
 	Post.parseLinkToImg = function(submit){
