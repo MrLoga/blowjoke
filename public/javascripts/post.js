@@ -62,7 +62,7 @@ $(function(){
 			// http://coub.com/view/1ibde
 			var coubid = url.match(/(?:http?:\/{2})?(?:w{3}\.)?coub.com\/view\/([^\s&]+)/);
 			if(coubid!=null) {
-				console.log("coub id="+ coubid[1]);
+				Post.parseBlockImg.html('<iframe src="http://coub.com/embed/'+coubid[1]+'?muted=false&amp;autostart=false&originalSize=false&hideTopBar=false&noSiteButtons=false&startWithHD=false" allowfullscreen="true" frameborder="0" width="640" height="480"></iframe>');
 			}else{
 				console.log("coub fasle");
 			}
