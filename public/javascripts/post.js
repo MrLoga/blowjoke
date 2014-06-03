@@ -56,6 +56,18 @@ $(function(){
 			}
 		}
 	};
+	Post.checkLinkCoub = function(linkArr){
+		for (var i=0; i<linkArr.length; i++){
+			var url = linkArr[i];
+			// http://coub.com/view/1ibde
+			var coubid = url.match(/(?:http?:\/{2})?(?:w{3}\.)?coub.com\/view\/([^\s&]+)/);
+			if(coubid!=null) {
+				console.log("coub id="+ coubid[1]);
+			}else{
+				console.log("coub fasle");
+			}
+		}
+	};
 
 	Post.parseTextToLink = function(text){
 	    var urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -80,6 +92,7 @@ $(function(){
 			$(".post__create-submit-img").html("");
 		}else{
 			Post.checkLinkYoutube(linkArr);
+			Post.checkLinkCoub(linkArr);
 			Post.checkLinkImg(linkArr).done(function(x){
 				if(submit){
 					var str = Post.parseBlock.html();
@@ -163,6 +176,8 @@ $(function(){
 		    $(".post__list").prepend(newPost);
 		    Post.removeNewClass();
 			Post.input.val("");
+			Post.input.height(48);
+			Post.inputHeight();
 			Post.input.blur();
 		  }
 		});
